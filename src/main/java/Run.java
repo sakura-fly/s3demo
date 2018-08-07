@@ -1,14 +1,15 @@
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.Protocol;
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
-import com.amazonaws.util.StringUtils;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
+import com.amazonaws.services.s3.transfer.Upload;
+import com.amazonaws.services.s3.transfer.model.UploadResult;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -25,11 +26,17 @@ public class Run {
     @Test
     public void run() {
         AmazonS3 c = createConnection();
-        getUrl(c,BUCKET_NAME,fileName);
+        // getcl(c);
+        // c.putObject(BUCKET_NAME, fileName, "");
+        // c.putObject(BUCKET_NAME,"h666",new File("G:\\test\\s3\\hello666.txt"));
+        // getUrl(c,BUCKET_NAME,fileName);
 
         // downObject(c, BUCKET_NAME);
+        getUrl(c, BUCKET_NAME, "msp.mp4");
 
-        // createObject(c, BUCKET_NAME);
+        // uploadFile("G:\\test\\s3\\hello666.txt",BUCKET_NAME,null,true,c);
+        //
+        // createObject(c, BUCKET_NAME, new File(""));
         // listBucketContent(c, BUCKET_NAME);
         // createBucket("gqy", c);
         // List<Bucket> l = listBuckets(c);
@@ -80,9 +87,8 @@ public class Run {
     }
 
     // 创建对象
-    public void createObject(AmazonS3 conn, String bucketName) {
-        ByteArrayInputStream input = new ByteArrayInputStream("Hello World!".getBytes());
-        conn.putObject(bucketName, "hello.txt", input, new ObjectMetadata());
+    public void createObject(AmazonS3 conn, String bucketName, ByteArrayInputStream input, String fileName) {
+        conn.putObject(bucketName, fileName, input, new ObjectMetadata());
     }
 
     // 下载对象
@@ -92,10 +98,59 @@ public class Run {
                 new File("G:\\test\\s3\\hello.txt")
         );
     }
+
     // 获取下载链接
-    public String getUrl(AmazonS3 conn, String bucketName,String fileName){
+    public String getUrl(AmazonS3 conn, String bucketName, String fileName) {
         GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucketName, fileName);
         System.out.println(conn.generatePresignedUrl(request));
         return conn.generatePresignedUrl(request).toString();
+    }
+
+
+    public void uploadFile(String file_path, String bucket_name, String key_prefix, boolean pause, AmazonS3 conn) {
+        System.out.println("file: " + file_path +
+                (pause ? " (pause)" : ""));
+
+        String key_name = null;
+        if (key_prefix != null) {
+            key_name = key_prefix + '/' + file_path;
+        } else {
+            key_name = file_path;
+        }
+
+        File f = new File(file_path);
+        TransferManager xfer_mgr = TransferManagerBuilder.standard().withS3Client(conn)
+                .build();
+        try {
+            Upload xfer = xfer_mgr.upload(bucket_name, key_name, f);
+            UploadResult r = xfer.waitForUploadResult();
+
+            // xfer.
+            // loop with Transfer.isDone()
+            // XferMgrProgress.showTransferProgress(xfer);
+            //  or block with Transfer.waitForCompletion()
+            // XferMgrProgress.waitForCompletion(xfer);
+        } catch (AmazonServiceException e) {
+            System.err.println(e.getErrorMessage());
+            System.exit(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // xfer_mgr.shutdownNow();
+    }
+    public void getcl(AmazonS3 s3){
+        try {
+
+            AccessControlList acl = s3.getBucketAcl(BUCKET_NAME);
+            List<Grant> grants = acl.getGrantsAsList();
+            for (Grant grant : grants) {
+                System.out.format("  %s: %s\n", grant.getGrantee().getIdentifier(),
+                        grant.getPermission().toString());
+            }
+
+        } catch (AmazonServiceException e) {
+            System.err.println(e.getErrorMessage());
+            System.exit(1);
+        }
     }
 }
