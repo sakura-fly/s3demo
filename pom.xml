@@ -20,5 +20,15 @@
             <artifactId>aws-java-sdk-s3</artifactId>
             <version>1.11.374</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.javaswift/joss -->
+        <dependency>
+            <groupId>org.javaswift</groupId>
+            <artifactId>joss</artifactId>
+            <version>0.10.2</version>
+        </dependency>
+
+
+
     </dependencies>
 </project>

@@ -20,8 +20,13 @@ public class Run {
     String accessKey = "JQUDUKZ3P2K6N2NAFH68";
     String secretKey = "aaoiD4rdtErqiHNLcN0cjys45CAcvD8DLhItcTLk";
     // String BUCKET_NAME = "my-first-s3-bucket1";
-    String BUCKET_NAME = "gqy";
-    String fileName = "hello.txt";
+    String BUCKET_NAME = "bw0a01";
+    String url = "http://192.168.1.124:7480";
+    // String url = "http://he.bobdz.com:8000";
+
+    // String BUCKET_NAME = "yxf";
+    // String BUCKET_NAME = "bobdevlvup";
+    // String fileName = "hello.txt";
 
     @Test
     public void run() {
@@ -32,17 +37,17 @@ public class Run {
         // getUrl(c,BUCKET_NAME,fileName);
 
         // downObject(c, BUCKET_NAME);
-        getUrl(c, BUCKET_NAME, "msp.mp4");
+        // getUrl(c, BUCKET_NAME, "msp.mp4");
 
         // uploadFile("G:\\test\\s3\\hello666.txt",BUCKET_NAME,null,true,c);
         //
         // createObject(c, BUCKET_NAME, new File(""));
         // listBucketContent(c, BUCKET_NAME);
-        // createBucket("gqy", c);
-        // List<Bucket> l = listBuckets(c);
-        // for (Bucket b : l) {
-        //     System.out.println(b);
-        // }
+        // createBucket("bobdevlvup", c);
+        List<Bucket> l = listBuckets(c);
+        for (Bucket b : l) {
+            System.out.println(b);
+        }
     }
 
     // 创建连接
@@ -54,8 +59,7 @@ public class Run {
         AmazonS3 conn = AmazonS3ClientBuilder.standard().withCredentials(
                 new AWSStaticCredentialsProvider(credentials))
                 .withEndpointConfiguration(
-                        new AwsClientBuilder.EndpointConfiguration(
-                                "http://192.168.1.124:7480", ""
+                        new AwsClientBuilder.EndpointConfiguration(url, ""
                         )
                 )
                 .build();
